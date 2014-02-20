@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Smooth Wheel Scroll",
+  "version": "1.0",
+  "description": "A lightweight smooth scrolling script with support for scroll acceleration.",
+  "background": {
+    "scripts": [
+    ]
+  },
+  "permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+             "main.js"
+            ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}
