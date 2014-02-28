@@ -1,29 +1,44 @@
 var blacklisted_sites = [
-'*.pdf$'
+'\.pdf$'
 ];
 
 function easeOutSine(t, b, c, d) {
   return c * Math.sin(t/d * (Math.PI/2)) + b;
+}
+
+function easeOutQuint(t, b, c, d) {
+  t /= d;
+  t--;
+  return c*(t*t*t*t*t + 1) + b;
+}
+
+function easeOutQuad(t, b, c, d) {
+	t /= d;
+	return -c * t*(t-2) + b;
+};
+
+
+function easeOutExpo(t, b, c, d) {
+	return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
 };
 
 var isScrolling;
 function smoothScrollBy(x, y, e) {
   isScrolling = true;
   var direction = (x===0)? "vertical" : "horizontal";
-  var scale = 0.8;
+  var scale = 0.5;
+  var duration = 35;
+  if (y < 0) y *= 0.65;
   var i = 0;
-  var duration = 30;
-  var oldY = y;
+  var down = true;
   y *= scale;
-  d = 25;
-  i = 0;
   var begin = setInterval(function() {
     if (direction === "horizontal") {
       e.scrollLeft += easeOutSine(i, i/duration*x, -i/duration*x, duration);
     } else {
       e.scrollTop += easeOutSine(i, i/duration*y, -i/duration*y, duration);
     }
-    i += 1;
+    i++;
     if (i >= duration) {
       isScrolling = false;
       clearInterval(begin);
@@ -34,7 +49,7 @@ function smoothScrollBy(x, y, e) {
 
 function accelFactor(delta, r) {
 
-  var accel = 0.1;
+  var accel = 0.75;
   if (r == null) {
     r = 1;
   }
@@ -157,8 +172,7 @@ window.onmousewheel = function(e) {
     e.preventDefault();
     var adjustedSpeed = accelFactor(e.deltaX || e.deltaY);
     if (e.clientX !== oldClientX || e.clientY !== oldClientY) {
-      var newE = checkParentScroll(e.toElement);
-      scrollElement = updateElement(newE, e.deltaX, e.deltaY);
+      scrollElement = updateElement(checkParentScroll(e.toElement), e.deltaX, e.deltaY);
       if (e.deltaX) {
         smoothScrollBy(adjustedSpeed, 0, scrollElement);
       } else {
