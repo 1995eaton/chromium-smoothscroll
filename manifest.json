@@ -2,6 +2,7 @@
   "manifest_version": 2,
   "name": "Smooth Wheel Scroll",
   "version": "1.0",
+  "options_page": "options.html",
   "description": "A lightweight smooth scrolling script with support for scroll acceleration.",
   "background": {
     "scripts": [

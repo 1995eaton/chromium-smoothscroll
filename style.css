@@ -1,0 +1,44 @@
+body {
+}
+#slider {
+  position: absolute;
+  width: 250px;
+  height: 20px;
+  left: 50px;
+}
+
+#slider_val {
+  background-color: white;
+  width: 45px;
+  height: 15px;
+  margin-top: 2px;
+  text-align: center;
+  margin-right: -55px;
+  margin-top: -1px;
+  float: right;
+}
+
+.slider_grabber {
+  position: relative;
+  top: -8px;
+  margin-left: 2px;
+  margin-right: 2px;
+  width: 10px;
+  height: 18px;
+  background-color: #000;
+}
+
+.slider_bar {
+  position: relative;
+  height: 2px;
+  width: 100%;
+  top: 11px;
+  background-color: #bbb;
+}
+
+#save_button {
+  position: absolute;
+  width: 100px;
+  left: 0px;
+  bottom: 5px;
+}
