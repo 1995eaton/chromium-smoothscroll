@@ -27,8 +27,8 @@ var Scroll = {
 
   currentAccel: 1,
   accelStep: 0.2,
-  scale: 0.75,
-  scrollDuration: 45,
+  scale: 1.3,
+  scrollDuration: 30,
   scrollMethod: ease.outQuint,
   isScrolling: false,
   scrollElement: null,
@@ -72,29 +72,33 @@ var Scroll = {
 
     }, 1000 / 60);
   },
-
   climbTheDOM: function(el, deltaX, deltaY) {
-    if (!el.parentNode) return document.body;
+    if (!el.parentNode) {
+      if (Scroll.isIframe) {
+        if ((deltaX > 0 && document.body.scrollLeft === 0) || (deltaX < 0 && document.body.scrollLeft + window.innerWidth >= document.body.scrollWidth) || (deltaY > 0 && document.body.scrollTop === 0) || (deltaY < 0 && document.body.scrollTop + window.innerHeight >= document.body.scrollHeight)) {
+          return Scroll.body;
+        }
+      }
+      return document.body;
+    }
     if (deltaY && el.scrollHeight > el.clientHeight) {
       var cStyle = getComputedStyle(el);
       if (cStyle.overflow !== "hidden" && cStyle.overflowY !== "hidden") {
         if (deltaY < 0) {
-          if (el.scrollTop + el.clientHeight === el.scrollHeight) {
-            return document.body;
-          }
-          var scrollTop = el.scrollTop;
-          el.scrollTop++;
-          if (scrollTop !== el.scrollTop) {
-            return el;
+          if (el.scrollTop + el.clientHeight !== el.scrollHeight) {
+            var scrollTop = el.scrollTop;
+            el.scrollTop++;
+            if (scrollTop !== el.scrollTop) {
+              return el;
+            }
           }
         } else {
-          if (el.scrollTop === 0) {
-            return document.body;
-          }
-          var scrollTop = el.scrollTop;
-          el.scrollTop--;
-          if (scrollTop !== el.scrollTop) {
-            return el;
+          if (el.scrollTop !== 0) {
+            var scrollTop = el.scrollTop;
+            el.scrollTop--;
+            if (scrollTop !== el.scrollTop) {
+              return el;
+            }
           }
         }
       }
@@ -102,22 +106,20 @@ var Scroll = {
       var cStyle = getComputedStyle(el);
       if (cStyle.overflow !== "hidden" && cStyle.overflowX !== "hidden") {
         if (deltaX < 0) {
-          if (el.scrollLeft + el.clientWidth === el.scrollWidth) {
-            return document.body;
-          }
-          var scrollLeft = el.scrollLeft;
-          el.scrollLeft++;
-          if (scrollLeft !== el.scrollLeft) {
-            return el;
+          if (el.scrollLeft + el.clientWidth !== el.scrollWidth) {
+            var scrollLeft = el.scrollLeft;
+            el.scrollLeft++;
+            if (scrollLeft !== el.scrollLeft) {
+              return el;
+            }
           }
         } else {
-          if (el.scrollLeft === 0) {
-            return document.body;
-          }
-          var scrollLeft = el.scrollLeft;
-          el.scrollLeft--;
-          if (scrollLeft !== el.scrollLeft) {
-            return el;
+          if (el.scrollLeft !== 0) {
+            var scrollLeft = el.scrollLeft;
+            el.scrollLeft--;
+            if (scrollLeft !== el.scrollLeft) {
+              return el;
+            }
           }
         }
       }
@@ -128,20 +130,25 @@ var Scroll = {
 };
 
 var onMouseWheel = function(ev) {
-  if (window === window.top) { // Ignore iframe elements
-    ev.stopPropagation(); ev.preventDefault();
-    if (ev.clientX !== Scroll.oldClientX || ev.clientY !== Scroll.oldClientY) {
-      scrollElement = Scroll.climbTheDOM(ev.target, ev.wheelDeltaX, ev.wheelDeltaY);
-      Scroll.smoothScrollBy(ev.wheelDeltaX, ev.wheelDeltaY, scrollElement);
-    } else {
-      Scroll.smoothScrollBy(ev.wheelDeltaX, ev.wheelDeltaY, scrollElement);
-    }
-    Scroll.oldClientX = ev.clientX;
-    Scroll.oldClientY = ev.clientY;
+  if (window !== window.top) {
+    Scroll.isIframe = true;
+  } else {
+    Scroll.isIframe = false;
   }
+  ev.stopPropagation(); ev.preventDefault();
+  if (ev.clientX !== Scroll.oldClientX || ev.clientY !== Scroll.oldClientY) {
+    scrollElement = Scroll.climbTheDOM(ev.target, ev.wheelDeltaX, ev.wheelDeltaY);
+    Scroll.smoothScrollBy(ev.wheelDeltaX, ev.wheelDeltaY, scrollElement);
+  } else {
+    Scroll.smoothScrollBy(ev.wheelDeltaX, ev.wheelDeltaY, scrollElement);
+  }
+  Scroll.oldClientX = ev.clientX;
+  Scroll.oldClientY = ev.clientY;
 };
 
 document.addEventListener("DOMContentLoaded", function() {
+  if (!document.body) return;
+  Scroll.body = window.top.document.body;
   for (var i = 0; i < blacklisted_sites.length; i++) {
     if (blacklisted_sites[i].test(document.URL)) return;
   }
