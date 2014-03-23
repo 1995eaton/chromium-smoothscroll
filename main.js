@@ -26,10 +26,9 @@ var ease = {
 var Scroll = {
 
   currentAccel: 1,
-  accelStep: 0.2,
-  scale: 1.3,
-  scrollDuration: 30,
-  scrollMethod: ease.outQuint,
+  accelStep: 5,
+  scrollDuration: 50,
+  scrollMethod: ease.outExpo,
   isScrolling: false,
   scrollElement: null,
   oldClientX: null,
@@ -44,34 +43,27 @@ var Scroll = {
     return this.currentAccel;
   },
 
-  smoothScrollBy: function(x, y, el) { // TODO: Convert to requestAnimationFrame
-    x ? x : y *= this.scale * this.accelFactor();
-    var interval = 0;
-    var negative = (x || y) < 0;
+  smoothScrollBy: function(x, y, el) {
+    x ? x : y *= this.accelFactor();
     this.isScrolling = true;
-    if (x) x /= 4;
-    var start = setInterval(function() {
+    var interval = 0;
+    var delta = 0;
+    var animLoop = function() {
       if (x) {
-        if (negative) { // No clue why a floor is required when scrolling up, but for some reason it balances the amount to be scrolled
-          el.scrollLeft -= Scroll.scrollMethod(interval, interval / Scroll.scrollDuration * x , -interval / Scroll.scrollDuration * x, Scroll.scrollDuration);
-        } else {
-          el.scrollLeft -= Math.floor(Scroll.scrollMethod(interval, interval / Scroll.scrollDuration * x , -interval / Scroll.scrollDuration * x, Scroll.scrollDuration));
-        }
+        el.scrollLeft -= Math.round(Scroll.scrollMethod(interval, 0, x, Scroll.scrollDuration) - delta);
       } else {
-        if (negative) {
-          el.scrollTop -= Scroll.scrollMethod(interval, interval / Scroll.scrollDuration * y, -interval / Scroll.scrollDuration * y, Scroll.scrollDuration);
-        } else {
-          el.scrollTop -= Math.floor(Scroll.scrollMethod(interval, interval / Scroll.scrollDuration * y, -interval / Scroll.scrollDuration * y, Scroll.scrollDuration));
-        }
+        el.scrollTop -= Math.round(Scroll.scrollMethod(interval, 0, y, Scroll.scrollDuration) - delta);
       }
-      interval++;
-      if (interval >= Scroll.scrollDuration) {
+      if (interval < Scroll.scrollDuration) {
         Scroll.isScrolling = false;
-        clearInterval(start);
+        requestAnimationFrame(animLoop);
       }
-
-    }, 1000 / 60);
+      delta = Scroll.scrollMethod(interval, 0, (x || y), Scroll.scrollDuration);
+      interval++;
+    };
+    animLoop();
   },
+
   climbTheDOM: function(el, deltaX, deltaY) {
     if (!el.parentNode) {
       if (Scroll.isIframe) {
